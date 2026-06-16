@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shazerag</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0A0A0A;
+      --white: #F7F5F0;
+      --gold: #C8A84B;
+      --gold-light: #E8C96A;
+      --grey: #1E1E1E;
+      --grey-mid: #2E2E2E;
+      --grey-light: #4A4A4A;
+      --grey-text: #8A8A8A;
+      --fan: #4A90D9;
+      --artist: #C8A84B;
+      --venue: #6BAF7A;
+      --danger: #D95A4A;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--black);
+      color: var(--white);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ---- TYPOGRAPHY ---- */
+    h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
+
+    /* ---- SCREENS ---- */
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: flex; flex-direction: column; }
+
+    /* ---- NAV ---- */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 32px;
+      border-bottom: 1px solid #1A1A1A;
+      position: sticky;
+      top: 0;
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--white);
+    }
+
+    .logo span { color: var(--gold); }
+
+    .nav-actions { display: flex; gap: 12px; align-items: center; }
+
+    /* ---- BUTTONS ---- */
+    .btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.2px;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: var(--black);
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--white);
+      border: 1px solid #2E2E2E;
+    }
+    .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+    .btn-danger {
+      background: var(--danger);
+      color: var(--white);
+    }
+
+    .btn-sm { padding: 7px 14px; font-size: 13px; }
+    .btn-lg { padding: 14px 28px; font-size: 16px; }
+    .btn-full { width: 100%; }
+
+    /* ---- CARDS ---- */
+    .card {
+      background: var(--grey);
+      border: 1px solid #242424;
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .card:hover { border-color: #333; }
+
+    /* ---- BADGES ---- */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .badge-fan { background: rgba(74,144,217,0.15); color: var(--fan); }
+    .badge-artist { background: rgba(200,168,75,0.15); color: var(--artist); }
+    .badge-venue { background: rgba(107,175,122,0.15); color: var(--venue); }
+    .badge-pending { background: rgba(200,168,75,0.1); color: var(--gold); }
+    .badge-active { background: rgba(107,175,122,0.15); color: var(--venue); }
+    .badge-confirmed { background: rgba(107,175,122,0.2); color: var(--venue); }
+
+    /* ---- FORMS ---- */
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--grey-text);
+      margin-bottom: 8px;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: var(--grey-mid);
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 12px 16px;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--gold);
+    }
+    .form-select option { background: var(--grey); }
+    .form-textarea { resize: vertical; min-height: 80px; }
+
+    /* ---- PROGRESS BAR ---- */
+    .progress-wrap {
+      background: #1A1A1A;
+      border-radius: 4px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    /* ---- MODAL ---- */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--grey);
+      border: 1px solid #333;
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--grey-text);
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    /* ---- TOAST ---- */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: var(--grey-mid);
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 300;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: var(--venue); color: var(--venue); }
+    .toast.error { border-color: var(--danger); color: var(--danger); }
+
+    /* ---- TABS ---- */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--grey);
+      border-radius: 10px;
+      padding: 4px;
+    }
+    .tab {
+      flex: 1;
+      padding: 8px 16px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      color: var(--grey-text);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      background: var(--grey-mid);
+      color: var(--white);
+    }
+
+    /* ---- DIVIDER ---- */
+    .divider {
+      border: none;
+      border-top: 1px solid #1E1E1E;
+      margin: 24px 0;
+    }
+
+    /* ========== LANDING ========== */
+    #landing {
+      background: var(--black);
+    }
+
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(200,168,75,0.08) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+    }
+
+    .hero-title {
+      font-size: clamp(40px, 8vw, 80px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      max-width: 700px;
+      margin-bottom: 24px;
+    }
+
+    .hero-title em {
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--grey-text);
+      max-width: 480px;
+      margin-bottom: 48px;
+    }
+
+    .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+    .roles-strip {
+      display: flex;
+      gap: 16px;
+      padding: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+      border-top: 1px solid #1A1A1A;
+    }
+
+    .role-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      border: 1px solid #222;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .role-pill:hover { border-color: var(--gold); }
+    .role-pill .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ========== AUTH ========== */
+    .auth-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--grey);
+      border: 1px solid #242424;
+      border-radius: 20px;
+      padding: 40px;
+    }
+
+    .auth-title {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .auth-sub { color: var(--grey-text); font-size: 14px; margin-bottom: 32px; }
+
+    .role-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .role-btn {
+      padding: 12px 8px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--grey-text);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .role-btn .role-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+    .role-btn.selected-fan { border-color: var(--fan); color: var(--fan); background: rgba(74,144,217,0.08); }
+    .role-btn.selected-artist { border-color: var(--artist); color: var(--artist); background: rgba(200,168,75,0.08); }
+    .role-btn.selected-venue { border-color: var(--venue); color: var(--venue); background: rgba(107,175,122,0.08); }
+
+    .auth-link {
+      color: var(--gold);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    /* ========== DASHBOARD ========== */
+    .dashboard-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+    }
+
+    .sidebar {
+      background: var(--grey);
+      border-right: 1px solid #1E1E1E;
+      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar-section {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--grey-light);
+      padding: 16px 12px 6px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--grey-text);
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .sidebar-item:hover { background: var(--grey-mid); color: var(--white); }
+    .sidebar-item.active { background: var(--grey-mid); color: var(--white); }
+    .sidebar-item .icon { font-size: 16px; }
+
+    .main-content {
+      padding: 40px;
+      overflow-y: auto;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .page-title { font-size: 28px; font-weight: 700; }
+    .page-sub { color: var(--grey-text); font-size: 14px; margin-top: 4px; }
+
+    /* ---- EVENT CARDS ---- */
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .event-card {
+      background: var(--grey);
+      border: 1px solid #242424;
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .event-card:hover { border-color: #444; transform: translateY(-2px); }
+
+    .event-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .event-artist { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .event-city { font-size: 13px; color: var(--grey-text); }
+
+    .event-meta {
+      display: flex;
+      gap: 16px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: var(--grey-text);
+    }
+    .event-meta span { display: flex; align-items: center; gap: 4px; }
+
+    .event-funding {
+      margin-top: 16px;
+    }
+    .funding-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--grey-text);
+      margin-bottom: 8px;
+    }
+    .funding-amount {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gold);
+    }
+
+    .event-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    /* ---- STATS GRID ---- */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--grey);
+      border: 1px solid #242424;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--grey-text); margin-bottom: 8px; }
+    .stat-value { font-size: 28px; font-weight: 700; font-family: 'Syne', sans-serif; }
+    .stat-sub { font-size: 12px; color: var(--grey-text); margin-top: 4px; }
+
+    /* ---- ADMIN TABLE ---- */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--grey-text);
+      padding: 12px 16px;
+      border-bottom: 1px solid #1E1E1E;
+    }
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #141414;
+      color: var(--white);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* ---- REFERRAL ---- */
+    .referral-box {
+      background: var(--grey-mid);
+      border: 1px dashed #444;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .referral-code {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+
+    /* ---- EMPTY STATE ---- */
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--grey-text);
+    }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-title { font-size: 18px; font-weight: 600; color: var(--white); margin-bottom: 8px; }
+    .empty-sub { font-size: 14px; margin-bottom: 24px; }
+
+    /* ---- UTILITY ---- */
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .gap-8 { gap: 8px; }
+    .gap-12 { gap: 12px; }
+    .gap-16 { gap: 16px; }
+    .mt-8 { margin-top: 8px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .text-gold { color: var(--gold); }
+    .text-muted { color: var(--grey-text); }
+    .text-sm { font-size: 13px; }
+    .text-xs { font-size: 12px; }
+    .font-bold { font-weight: 700; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+
+    @media (max-width: 768px) {
+      .dashboard-layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .main-content { padding: 24px 16px; }
+      nav { padding: 16px; }
+      .hero { padding: 60px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ====== LANDING ====== -->
+<div id="landing" class="screen active">
+  <nav>
+    <div class="logo">Shaze<span>rag</span></div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="showScreen('login')">Accedi</button>
+      <button class="btn btn-primary" onclick="showScreen('register')">Inizia gratis</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-eyebrow">Shared Service Agent</div>
+    <h1 class="hero-title">Il concerto che vuoi,<br><em>dove vuoi tu.</em></h1>
+    <p class="hero-sub">Proponi un artista nella tua città. Quando la community raggiunge il cachet, l'evento si crea da solo.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary btn-lg" onclick="showScreen('register')">Proponi un evento</button>
+      <button class="btn btn-ghost btn-lg" onclick="showScreen('explore')">Esplora eventi</button>
+    </div>
+  </div>
+
+  <div class="roles-strip">
+    <div class="role-pill" onclick="showRegister('fan')">
+      <div class="dot" style="background:var(--fan)"></div>
+      <span>Sei un fan?</span>
+    </div>
+    <div class="role-pill" onclick="showRegister('artist')">
+      <div class="dot" style="background:var(--artist)"></div>
+      <span>Sei un artista?</span>
+    </div>
+    <div class="role-pill" onclick="showRegister('venue')">
+      <div class="dot" style="background:var(--venue)"></div>
+      <span>Hai una location?</span>
+    </div>
+  </div>
+</div>
+
+<!-- ====== REGISTER ====== -->
+<div id="register" class="screen">
+  <nav>
+    <div class="logo">Shaze<span>rag</span></div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="showScreen('landing')">← Indietro</button>
+    </div>
+  </nav>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h2 class="auth-title">Crea il tuo account</h2>
+      <p class="auth-sub">Scegli il tuo ruolo sulla piattaforma.</p>
+
+      <div class="role-selector">
+        <button class="role-btn" id="rb-fan" onclick="selectRole('fan')">
+          <span class="role-icon">🎟️</span>Fan
+        </button>
+        <button class="role-btn" id="rb-artist" onclick="selectRole('artist')">
+          <span class="role-icon">🎤</span>Artista
+        </button>
+        <button class="role-btn" id="rb-venue" onclick="selectRole('venue')">
+          <span class="role-icon">🏛️</span>Location
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Nome completo / Nome d'arte</label>
+        <input class="form-input" id="reg-name" type="text" placeholder="Il tuo nome" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="reg-email" type="email" placeholder="email@esempio.it" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Città</label>
+        <input class="form-input" id="reg-city" type="text" placeholder="Milano" />
+      </div>
+
+      <!-- Campi artista -->
+      <div id="artist-fields" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Genere musicale</label>
+          <select class="form-select" id="reg-genre">
+            <option value="">Seleziona</option>
+            <option>Jazz</option><option>Rock</option><option>Pop</option>
+            <option>Classica</option><option>Hip-Hop</option><option>Elettronica</option>
+            <option>Teatro</option><option>Stand-up</option><option>Altro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cachet minimo (€)</label>
+          <input class="form-input" id="reg-cachet" type="number" placeholder="es. 500" />
+        </div>
+      </div>
+
+      <!-- Campi venue -->
+      <div id="venue-fields" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Tipo di location</label>
+          <select class="form-select" id="reg-venue-type">
+            <option value="">Seleziona</option>
+            <option>Bar / Locale</option><option>Ristorante</option>
+            <option>Teatro</option><option>Auditorium</option>
+            <option>Spazio all'aperto</option><option>Stadio</option><option>Altro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Capienza massima</label>
+          <input class="form-input" id="reg-capacity" type="number" placeholder="es. 200" />
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-full btn-lg" onclick="doRegister()">Registrati</button>
+      <p class="text-sm text-muted mt-16" style="text-align:center">
+        Hai già un account? <span class="auth-link" onclick="showScreen('login')">Accedi</span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== LOGIN ====== -->
+<div id="login" class="screen">
+  <nav>
+    <div class="logo">Shaze<span>rag</span></div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="showScreen('landing')">← Indietro</button>
+    </div>
+  </nav>
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h2 class="auth-title">Bentornato</h2>
+      <p class="auth-sub">Accedi con le tue credenziali.</p>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="login-email" type="email" placeholder="email@esempio.it" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="login-pw" type="password" placeholder="••••••••" />
+      </div>
+
+      <button class="btn btn-primary btn-full btn-lg" onclick="doLogin()">Accedi</button>
+
+      <hr class="divider">
+      <p class="text-sm text-muted" style="text-align:center;margin-bottom:12px">Accedi come demo:</p>
+      <div class="flex gap-8" style="flex-wrap:wrap; justify-content:center">
+        <button class="btn btn-ghost btn-sm" onclick="demoLogin('fan')">🎟️ Fan</button>
+        <button class="btn btn-ghost btn-sm" onclick="demoLogin('artist')">🎤 Artista</button>
+        <button class="btn btn-ghost btn-sm" onclick="demoLogin('venue')">🏛️ Location</button>
+        <button class="btn btn-ghost btn-sm" onclick="demoLogin('admin')">⚙️ Admin</button>
+      </div>
+
+      <p class="text-sm text-muted mt-16" style="text-align:center">
+        Non hai un account? <span class="auth-link" onclick="showScreen('register')">Registrati</span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== DASHBOARD ====== -->
+<div id="dashboard" class="screen">
+  <nav>
+    <div class="logo">Shaze<span>rag</span></div>
+    <div class="nav-actions">
+      <span id="nav-user-badge" class="badge"></span>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Esci</button>
+    </div>
+  </nav>
+  <div class="dashboard-layout">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content" id="main-content"></main>
+  </div>
+</div>
+
+<!-- ====== EXPLORE (public) ====== -->
+<div id="explore" class="screen">
+  <nav>
+    <div class="logo">Shaze<span>rag</span></div>
+    <div class="nav-actions">
+      <button class="btn btn-ghost" onclick="showScreen('landing')">← Home</button>
+      <button class="btn btn-primary" onclick="showScreen('register')">Registrati</button>
+    </div>
+  </nav>
+  <div class="main-content" style="padding:40px">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Eventi in corso</h1>
+        <p class="page-sub">Unisciti a una proposta o creane una nuova.</p>
+      </div>
+      <button class="btn btn-primary" onclick="showScreen('register')">+ Proponi evento</button>
+    </div>
+    <div class="events-grid" id="explore-grid"></div>
+  </div>
+</div>
+
+<!-- ====== MODAL: CREA EVENTO ====== -->
+<div class="modal-overlay" id="modal-create-event">
+  <div class="modal">
+    <h3 class="modal-title">✨ Proponi un evento</h3>
+    <div class="form-group">
+      <label class="form-label">Artista</label>
+      <select class="form-select" id="ev-artist"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Città</label>
+      <input class="form-input" id="ev-city" type="text" placeholder="Milano" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Prezzo biglietto (€)</label>
+      <input class="form-input" id="ev-price" type="number" placeholder="es. 15" />
+      <p class="text-xs text-muted mt-8" id="ev-price-suggestion"></p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Data preferita</label>
+      <input class="form-input" id="ev-date" type="date" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descrizione (opzionale)</label>
+      <textarea class="form-textarea" id="ev-desc" placeholder="Perché vuoi questo evento?"></textarea>
+    </div>
+    <div class="flex gap-8 mt-16">
+      <button class="btn btn-ghost btn-full" onclick="closeModal('modal-create-event')">Annulla</button>
+      <button class="btn btn-primary btn-full" onclick="submitNewEvent()">Crea proposta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MODAL: DETTAGLIO EVENTO ====== -->
+<div class="modal-overlay" id="modal-event-detail">
+  <div class="modal" id="event-detail-content"></div>
+</div>
+
+<!-- ====== MODAL: AGGIUNGI ARTISTA (admin) ====== -->
+<div class="modal-overlay" id="modal-add-artist">
+  <div class="modal">
+    <h3 class="modal-title">🎤 Aggiungi artista</h3>
+    <div class="form-group">
+      <label class="form-label">Nome d'arte</label>
+      <input class="form-input" id="adm-artist-name" type="text" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Genere</label>
+      <select class="form-select" id="adm-artist-genre">
+        <option>Jazz</option><option>Rock</option><option>Pop</option>
+        <option>Classica</option><option>Hip-Hop</option><option>Elettronica</option>
+        <option>Teatro</option><option>Stand-up</option><option>Altro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Città</label>
+      <input class="form-input" id="adm-artist-city" type="text" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cachet minimo (€)</label>
+      <input class="form-input" id="adm-artist-cachet" type="number" />
+    </div>
+    <div class="flex gap-8 mt-16">
+      <button class="btn btn-ghost btn-full" onclick="closeModal('modal-add-artist')">Annulla</button>
+      <button class="btn btn-primary btn-full" onclick="adminAddArtist()">Aggiungi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MODAL: AGGIUNGI VENUE (admin) ====== -->
+<div class="modal-overlay" id="modal-add-venue">
+  <div class="modal">
+    <h3 class="modal-title">🏛️ Aggiungi location</h3>
+    <div class="form-group">
+      <label class="form-label">Nome location</label>
+      <input class="form-input" id="adm-venue-name" type="text" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tipo</label>
+      <select class="form-select" id="adm-venue-type">
+        <option>Bar / Locale</option><option>Ristorante</option>
+        <option>Teatro</option><option>Auditorium</option>
+        <option>Spazio all'aperto</option><option>Stadio</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Città</label>
+      <input class="form-input" id="adm-venue-city" type="text" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Capienza</label>
+      <input class="form-input" id="adm-venue-capacity" type="number" />
+    </div>
+    <div class="flex gap-8 mt-16">
+      <button class="btn btn-ghost btn-full" onclick="closeModal('modal-add-venue')">Annulla</button>
+      <button class="btn btn-primary btn-full" onclick="adminAddVenue()">Aggiungi</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================
+// DATA STORE
+// =============================================
+const DB = {
+  users: [
+    { id: 'u1', name: 'Marco Rossi', email: 'fan@demo.it', role: 'fan', city: 'Milano', referralCode: 'MARCO42', referralEarnings: 35, eventsCreated: 2, eventsJoined: 5 },
+    { id: 'u2', name: 'Sofia Jazz', email: 'artist@demo.it', role: 'artist', city: 'Roma', genre: 'Jazz', cachet: 800, bio: 'Pianista jazz con 10 anni di esperienza', confirmed: true },
+    { id: 'u3', name: 'Blue Note Milano', email: 'venue@demo.it', role: 'venue', city: 'Milano', venueType: 'Bar / Locale', capacity: 120, confirmed: true },
+    { id: 'adm', name: 'Admin', email: 'admin@shazerag.it', role: 'admin', city: '' },
+  ],
+  artists: [
+    { id: 'a1', name: 'Sofia Jazz', genre: 'Jazz', city: 'Roma', cachet: 800, bio: 'Pianista jazz con 10 anni di esperienza', confirmed: true },
+    { id: 'a2', name: 'The Rough Edges', genre: 'Rock', city: 'Milano', cachet: 1200, bio: 'Band rock alternativa', confirmed: true },
+    { id: 'a3', name: 'DJ Nexus', genre: 'Elettronica', city: 'Torino', cachet: 600, bio: 'Producer elettronico', confirmed: true },
+    { id: 'a4', name: 'Compagnia del Vento', genre: 'Teatro', city: 'Firenze', cachet: 1500, bio: 'Compagnia teatrale sperimentale', confirmed: true },
+    { id: 'a5', name: 'Luca Bianchi', genre: 'Pop', city: 'Napoli', cachet: 400, bio: 'Cantautore emergente', confirmed: false },
+  ],
+  venues: [
+    { id: 'v1', name: 'Blue Note Milano', venueType: 'Bar / Locale', city: 'Milano', capacity: 120, confirmed: true },
+    { id: 'v2', name: 'Teatro Regio', venueType: 'Teatro', city: 'Torino', capacity: 800, confirmed: true },
+    { id: 'v3', name: 'Spazio Aperto Roma', venueType: 'Spazio all\'aperto', city: 'Roma', capacity: 300, confirmed: true },
+  ],
+  events: [
+    {
+      id: 'e1', artistId: 'a1', artistName: 'Sofia Jazz', city: 'Milano',
+      ticketPrice: 15, cachet: 800, totalRaised: 600, participants: 40,
+      date: '2024-09-15', status: 'funding', creatorId: 'u1', creatorName: 'Marco R.',
+      desc: 'Voglio portare il jazz dal vivo a Milano!',
+      venueId: null, artistConfirmed: null
+    },
+    {
+      id: 'e2', artistId: 'a2', artistName: 'The Rough Edges', city: 'Roma',
+      ticketPrice: 20, cachet: 1200, totalRaised: 1200, participants: 60,
+      date: '2024-10-20', status: 'artist_pending', creatorId: 'u1', creatorName: 'Marco R.',
+      desc: 'Rock alternativo a Roma.',
+      venueId: null, artistConfirmed: null
+    },
+    {
+      id: 'e3', artistId: 'a3', artistName: 'DJ Nexus', city: 'Torino',
+      ticketPrice: 12, cachet: 600, totalRaised: 600, participants: 50,
+      date: '2024-11-05', status: 'venue_pending', creatorId: 'u1', creatorName: 'Laura G.',
+      desc: 'Serata elettronica a Torino.',
+      venueId: null, artistConfirmed: true
+    },
+    {
+      id: 'e4', artistId: 'a4', artistName: 'Compagnia del Vento', city: 'Firenze',
+      ticketPrice: 25, cachet: 1500, totalRaised: 1500, participants: 60,
+      date: '2024-12-10', status: 'confirmed', creatorId: 'u1', creatorName: 'Sara B.',
+      desc: 'Teatro sperimentale a Firenze.',
+      venueId: 'v2', artistConfirmed: true
+    },
+  ]
+};
+
+const STATUS_LABELS = {
+  funding: { label: 'Raccolta fondi', badge: 'badge-pending' },
+  artist_pending: { label: 'In attesa artista', badge: 'badge-pending' },
+  venue_pending: { label: 'In attesa location', badge: 'badge-active' },
+  confirmed: { label: 'Confermato ✓', badge: 'badge-confirmed' },
+  cancelled: { label: 'Annullato', badge: '' },
+};
+
+let currentUser = null;
+let currentPage = null;
+
+// =============================================
+// NAVIGATION
+// =============================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'explore') renderExplore();
+}
+
+function showRegister(role) {
+  showScreen('register');
+  selectRole(role);
+}
+
+// =============================================
+// AUTH
+// =============================================
+function selectRole(role) {
+  ['fan','artist','venue'].forEach(r => {
+    document.getElementById('rb-' + r).className = 'role-btn';
+  });
+  document.getElementById('rb-' + role).className = `role-btn selected-${role}`;
+  document.getElementById('artist-fields').style.display = role === 'artist' ? 'block' : 'none';
+  document.getElementById('venue-fields').style.display = role === 'venue' ? 'block' : 'none';
+  window._selectedRole = role;
+}
+
+function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const city = document.getElementById('reg-city').value.trim();
+  const role = window._selectedRole;
+  if (!name || !email || !role) { showToast('Compila tutti i campi', 'error'); return; }
+
+  const user = { id: 'u' + Date.now(), name, email, role, city };
+  if (role === 'fan') {
+    user.referralCode = name.split(' ')[0].toUpperCase() + Math.floor(Math.random()*99);
+    user.referralEarnings = 0;
+    user.eventsCreated = 0;
+    user.eventsJoined = 0;
+  }
+  if (role === 'artist') {
+    user.genre = document.getElementById('reg-genre').value;
+    user.cachet = parseInt(document.getElementById('reg-cachet').value) || 500;
+    user.confirmed = false;
+    DB.artists.push({ id: user.id, name: user.name, genre: user.genre, city, cachet: user.cachet, confirmed: false });
+  }
+  if (role === 'venue') {
+    user.venueType = document.getElementById('reg-venue-type').value;
+    user.capacity = parseInt(document.getElementById('reg-capacity').value) || 100;
+    user.confirmed = false;
+    DB.venues.push({ id: user.id, name: user.name, venueType: user.venueType, city, capacity: user.capacity, confirmed: false });
+  }
+  DB.users.push(user);
+  currentUser = user;
+  enterDashboard();
+  showToast('Benvenuto su Shazerag!', 'success');
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const user = DB.users.find(u => u.email === email);
+  if (!user) { showToast('Email non trovata', 'error'); return; }
+  currentUser = user;
+  enterDashboard();
+}
+
+function demoLogin(role) {
+  const map = { fan: 'fan@demo.it', artist: 'artist@demo.it', venue: 'venue@demo.it', admin: 'admin@shazerag.it' };
+  currentUser = DB.users.find(u => u.email === map[role]);
+  enterDashboard();
+  showToast(`Accesso demo: ${currentUser.name}`, 'success');
+}
+
+function doLogout() {
+  currentUser = null;
+  showScreen('landing');
+}
+
+function enterDashboard() {
+  showScreen('dashboard');
+  renderSidebar();
+  navigateTo(currentUser.role === 'admin' ? 'admin-events' : 'overview');
+  // badge nav
+  const badge = document.getElementById('nav-user-badge');
+  const roleMap = { fan: ['Fan', 'badge-fan'], artist: ['Artista', 'badge-artist'], venue: ['Location', 'badge-venue'], admin: ['Admin', 'badge-pending'] };
+  const [label, cls] = roleMap[currentUser.role] || ['User', ''];
+  badge.className = `badge ${cls}`;
+  badge.textContent = `${currentUser.name} · ${label}`;
+}
+
+// =============================================
+// SIDEBAR
+// =============================================
+function renderSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const items = getSidebarItems();
+  sidebar.innerHTML = items.map(item =>
+    item.divider
+      ? `<div class="sidebar-section">${item.label}</div>`
+      : `<button class="sidebar-item" id="si-${item.id}" onclick="navigateTo('${item.id}')">
+          <span class="icon">${item.icon}</span>${item.label}
+        </button>`
+  ).join('');
+}
+
+function getSidebarItems() {
+  if (currentUser.role === 'fan') return [
+    { divider: true, label: 'Menu' },
+    { id: 'overview', icon: '🏠', label: 'Dashboard' },
+    { id: 'events', icon: '🎟️', label: 'Esplora eventi' },
+    { id: 'my-events', icon: '⭐', label: 'I miei eventi' },
+    { id: 'referral', icon: '🔗', label: 'Il mio link' },
+  ];
+  if (currentUser.role === 'artist') return [
+    { divider: true, label: 'Menu' },
+    { id: 'overview', icon: '🏠', label: 'Dashboard' },
+    { id: 'artist-requests', icon: '📬', label: 'Richieste' },
+    { id: 'artist-profile', icon: '👤', label: 'Il mio profilo' },
+  ];
+  if (currentUser.role === 'venue') return [
+    { divider: true, label: 'Menu' },
+    { id: 'overview', icon: '🏠', label: 'Dashboard' },
+    { id: 'venue-requests', icon: '📬', label: 'Richieste location' },
+    { id: 'venue-profile', icon: '🏛️', label: 'La mia location' },
+  ];
+  if (currentUser.role === 'admin') return [
+    { divider: true, label: 'Gestione' },
+    { id: 'admin-events', icon: '🎫', label: 'Tutti gli eventi' },
+    { id: 'admin-artists', icon: '🎤', label: 'Artisti' },
+    { id: 'admin-venues', icon: '🏛️', label: 'Location' },
+    { id: 'admin-users', icon: '👥', label: 'Utenti' },
+  ];
+  return [];
+}
+
+function navigateTo(page) {
+  currentPage = page;
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('si-' + page);
+  if (el) el.classList.add('active');
+
+  const mc = document.getElementById('main-content');
+  const renders = {
+    overview: renderOverview,
+    events: renderEventsPage,
+    'my-events': renderMyEvents,
+    referral: renderReferral,
+    'artist-requests': renderArtistRequests,
+    'artist-profile': renderArtistProfile,
+    'venue-requests': renderVenueRequests,
+    'venue-profile': renderVenueProfile,
+    'admin-events': renderAdminEvents,
+    'admin-artists': renderAdminArtists,
+    'admin-venues': renderAdminVenues,
+    'admin-users': renderAdminUsers,
+  };
+  if (renders[page]) renders[page]();
+}
+
+// =============================================
+// PAGES — FAN
+// =============================================
+function renderOverview() {
+  const mc = document.getElementById('main-content');
+  if (currentUser.role === 'fan') {
+    const myEvents = DB.events.filter(e => e.creatorId === currentUser.id || e.participants > 0);
+    mc.innerHTML = `
+      <div class="page-header">
+        <div><h1 class="page-title">Ciao, ${currentUser.name.split(' ')[0]}! 👋</h1>
+        <p class="page-sub">Ecco cosa sta succedendo sulla piattaforma.</p></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Proposte create</div><div class="stat-value">${currentUser.eventsCreated || 0}</div></div>
+        <div class="stat-card"><div class="stat-label">Eventi a cui partecipi</div><div class="stat-value">${currentUser.eventsJoined || 0}</div></div>
+        <div class="stat-card"><div class="stat-label">Guadagni referral</div><div class="stat-value text-gold">€${currentUser.referralEarnings || 0}</div></div>
+        <div class="stat-card"><div class="stat-label">Il tuo codice</div><div class="stat-value" style="font-size:20px">${currentUser.referralCode || '—'}</div></div>
+      </div>
+      <div class="page-header" style="margin-top:8px">
+        <h2 style="font-size:20px;font-weight:700">Ultimi eventi attivi</h2>
+        <button class="btn btn-primary btn-sm" onclick="openCreateEvent()">+ Proponi evento</button>
+      </div>
+      <div class="events-grid">${DB.events.slice(0,3).map(renderEventCard).join('')}</div>
+    `;
+  } else if (currentUser.role === 'artist') {
+    const requests = DB.events.filter(e => e.artistId === currentUser.id || (currentUser.id === 'u2' && e.artistId === 'a1'));
+    mc.innerHTML = `
+      <div class="page-header"><div>
+        <h1 class="page-title">Ciao, ${currentUser.name}! 🎤</h1>
+        <p class="page-sub">Stai ricevendo richieste dalla community.</p>
+      </div></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Richieste ricevute</div><div class="stat-value">${DB.events.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Cachet minimo</div><div class="stat-value text-gold">€${currentUser.cachet || '—'}</div></div>
+        <div class="stat-card"><div class="stat-label">Confermato</div><div class="stat-value">${currentUser.confirmed ? '✓' : '⏳'}</div></div>
+      </div>
+      <div class="page-header" style="margin-top:8px"><h2 style="font-size:20px;font-weight:700">Richieste in attesa</h2></div>
+      <div class="events-grid">${DB.events.filter(e=>e.status==='artist_pending').map(renderEventCard).join('')}</div>
+    `;
+  } else if (currentUser.role === 'venue') {
+    mc.innerHTML = `
+      <div class="page-header"><div>
+        <h1 class="page-title">Ciao, ${currentUser.name}! 🏛️</h1>
+        <p class="page-sub">Ecco gli eventi che cercano una location.</p>
+      </div></div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Location confermata</div><div class="stat-value">${currentUser.confirmed ? '✓' : '⏳'}</div></div>
+        <div class="stat-card"><div class="stat-label">Capienza</div><div class="stat-value">${currentUser.capacity || '—'}</div></div>
+        <div class="stat-card"><div class="stat-label">Richieste aperte</div><div class="stat-value">${DB.events.filter(e=>e.status==='venue_pending').length}</div></div>
+      </div>
+      <div class="page-header" style="margin-top:8px"><h2 style="font-size:20px;font-weight:700">Cercano una location</h2></div>
+      <div class="events-grid">${DB.events.filter(e=>e.status==='venue_pending').map(renderEventCard).join('')}</div>
+    `;
+  }
+}
+
+function renderEventCard(ev) {
+  const pct = Math.min(100, Math.round((ev.totalRaised / ev.cachet) * 100));
+  const st = STATUS_LABELS[ev.status] || { label: ev.status, badge: '' };
+  return `
+    <div class="event-card" onclick="openEventDetail('${ev.id}')">
+      <div class="event-card-header">
+        <div>
+          <div class="event-artist">${ev.artistName}</div>
+          <div class="event-city">📍 ${ev.city}</div>
+        </div>
+        <span class="badge ${st.badge}">${st.label}</span>
+      </div>
+      <div class="event-meta">
+        <span>🎟️ €${ev.ticketPrice}/biglietto</span>
+        <span>👤 ${ev.participants} partecipanti</span>
+      </div>
+      <div class="event-funding">
+        <div class="funding-label">
+          <span>Raccolta</span>
+          <span class="funding-amount">€${ev.totalRaised} / €${ev.cachet}</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+        <div class="text-xs text-muted mt-8">${pct}% del cachet raggiunto</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderEventsPage() {
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `
+    <div class="page-header">
+      <div><h1 class="page-title">Esplora eventi</h1><p class="page-sub">Tutti gli eventi proposti dalla community.</p></div>
+      <button class="btn btn-primary" onclick="openCreateEvent()">+ Proponi evento</button>
+    </div>
+    <div class="events-grid">${DB.events.map(renderEventCard).join('')}</div>
+  `;
+}
+
+function renderMyEvents() {
+  const mine = DB.events.filter(e => e.creatorId === currentUser.id);
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `
+    <div class="page-header">
+      <div><h1 class="page-title">I miei eventi</h1><p class="page-sub">Le proposte che hai creato.</p></div>
+      <button class="btn btn-primary" onclick="openCreateEvent()">+ Nuova proposta</button>
+    </div>
+    ${mine.length ? `<div class="events-grid">${mine.map(renderEventCard).join('')}</div>` : `
+      <div class="empty-state">
+        <div class="empty-icon">🎵</div>
+        <div class="empty-title">Nessuna proposta ancora</div>
+        <div class="empty-sub">Inizia proponendo il tuo primo evento!</div>
+        <button class="btn btn-primary" onclick="openCreateEvent()">Proponi evento</button>
+      </div>
+    `}
+  `;
+}
+
+function renderReferral() {
+  const mc = document.getElementById('main-content');
+  const code = currentUser.referralCode || 'NOCODE';
+  const link = `https://shazerag.it/join?ref=${code}`;
+  mc.innerHTML = `
+    <div class="page-header"><div>
+      <h1 class="page-title">Il tuo link referral</h1>
+      <p class="page-sub">Condividi e guadagna ogni volta che qualcuno si iscrive tramite te.</p>
+    </div></div>
+    <div class="card" style="max-width:560px">
+      <div class="stat-label" style="margin-bottom:8px">Il tuo codice</div>
+      <div class="referral-box">
+        <div class="referral-code">${code}</div>
+        <button class="btn btn-primary btn-sm" onclick="copyLink('${link}')">Copia link</button>
+      </div>
+      <hr class="divider">
+      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:0">
+        <div><div class="stat-label">Iscrizioni</div><div class="stat-value">0</div></div>
+        <div><div class="stat-label">Token accumulati</div><div class="stat-value">0</div></div>
+        <div><div class="stat-label">Guadagni €</div><div class="stat-value text-gold">€${currentUser.referralEarnings || 0}</div></div>
+      </div>
+      <hr class="divider">
+      <p class="text-sm text-muted">Ogni persona che si iscrive tramite il tuo link ti genera un token. I token si convertono in sconti o guadagni sugli eventi che proponi.</p>
+    </div>
+  `;
+}
+
+function copyLink(link) {
+  navigator.clipboard.writeText(link).then(() => showToast('Link copiato!', 'success'));
+}
+
+// =============================================
+// PAGES — ARTIST
+// =============================================
+function renderArtistRequests() {
+  const mc = document.getElementById('main-content');
+  const events = DB.events.filter(e => e.status === 'artist_pending');
+  mc.innerHTML = `
+    <div class="page-header"><div>
+      <h1 class="page-title">Richieste ricevute</h1>
+      <p class="page-sub">La community ti vuole sul palco. Conferma o declina.</p>
+    </div></div>
+    ${events.length ? `<div class="events-grid">${events.map(e => renderEventCard(e)).join('')}</div>`
+    : `<div class="empty-state"><div class="empty-icon">📬</div><div class="empty-title">Nessuna richiesta in attesa</div><div class="empty-sub">Le richieste della community appariranno qui.</div></div>`}
+  `;
+}
+
+function renderArtistProfile() {
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `
+    <div class="page-header"><h1 class="page-title">Il mio profilo</h1></div>
+    <div class="card" style="max-width:480px">
+      <div class="flex items-center gap-16" style="margin-bottom:24px">
+        <div style="width:64px;height:64px;border-radius:50%;background:var(--grey-mid);display:flex;align-items:center;justify-content:center;font-size:28px">🎤</div>
+        <div><div style="font-size:20px;font-weight:700">${currentUser.name}</div>
+        <span class="badge badge-artist">${currentUser.genre || 'Artista'}</span></div>
+      </div>
+      <div class="form-group"><label class="form-label">Cachet minimo</label>
+        <div style="font-size:24px;font-weight:700;color:var(--gold)">€${currentUser.cachet || '—'}</div>
+      </div>
+      <div class="form-group"><label class="form-label">Città</label><div>${currentUser.city}</div></div>
+      <div class="form-group"><label class="form-label">Stato verifica</label>
+        <span class="badge ${currentUser.confirmed ? 'badge-confirmed' : 'badge-pending'}">${currentUser.confirmed ? 'Verificato ✓' : 'In attesa di verifica'}</span>
+      </div>
+    </div>
+  `;
+}
+
+// =============================================
+// PAGES — VENUE
+// =============================================
+function renderVenueRequests() {
+  const mc = document.getElementById('main-content');
+  const events = DB.events.filter(e => e.status === 'venue_pending');
+  mc.innerHTML = `
+    <div class="page-header"><div>
+      <h1 class="page-title">Richieste location</h1>
+      <p class="page-sub">Questi eventi cercano una location nella tua città.</p>
+    </div></div>
+    ${events.length ? `<div class="events-grid">${events.map(e => `
+      <div class="event-card">
+        ${renderEventCard(e).replace('<div class="event-card" onclick="openEventDetail(\''+e.id+'\')">', '<div>').replace('</div>\n  ', '')}
+        <div class="event-actions">
+          <button class="btn btn-primary btn-sm" onclick="venueApply('${e.id}')">Proponi la mia location</button>
+        </div>
+      </div>`).join('')}`
+    : `<div class="empty-state"><div class="empty-icon">🏛️</div><div class="empty-title">Nessuna richiesta</div><div class="empty-sub">Quando un evento cerca una location nella tua città, apparirà qui.</div></div>`}
+  `;
+}
+
+function venueApply(eventId) {
+  const ev = DB.events.find(e => e.id === eventId);
+  if (ev) {
+    ev.venueId = currentUser.id;
+    ev.status = 'confirmed';
+    navigateTo('venue-requests');
+    showToast('Location proposta! Evento confermato 🎉', 'success');
+  }
+}
+
+function renderVenueProfile() {
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `
+    <div class="page-header"><h1 class="page-title">La mia location</h1></div>
+    <div class="card" style="max-width:480px">
+      <div class="flex items-center gap-16" style="margin-bottom:24px">
+        <div style="width:64px;height:64px;border-radius:50%;background:var(--grey-mid);display:flex;align-items:center;justify-content:center;font-size:28px">🏛️</div>
+        <div><div style="font-size:20px;font-weight:700">${currentUser.name}</div>
+        <span class="badge badge-venue">${currentUser.venueType || 'Location'}</span></div>
+      </div>
+      <div class="form-group"><label class="form-label">Capienza</label><div style="font-size:24px;font-weight:700">${currentUser.capacity || '—'} persone</div></div>
+      <div class="form-group"><label class="form-label">Città</label><div>${currentUser.city}</div></div>
+      <div class="form-group"><label class="form-label">Stato verifica</label>
+        <span class="badge ${currentUser.confirmed ? 'badge-confirmed' : 'badge-pending'}">${currentUser.confirmed ? 'Verificata ✓' : 'In attesa di verifica'}</span>
+      </div>
+    </div>
+  `;
+}
+
+// =============================================
+// PAGES — ADMIN
+// =============================================
+function renderAdminEvents() {
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `
+    <div class="page-header">
+      <div><h1 class="page-title">Tutti gli eventi</h1><p class="page-sub">Gestisci le proposte della piattaforma.</p></div>
+    </div>
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>Artista</th><th>Città</th><th>Stato</th><th>Raccolta</th><th>Partecipanti</th><th>Azioni</th></tr></thead>
+        <tbody>${DB.events.map(ev => {
+          const pct = Math.min(100, Math.round((ev.totalRaised / ev.cachet) * 100));
+          const st = STATUS_LABELS[ev.status] || { label: ev.status, badge: '' };
+          return `<tr>
+            <td><strong>${ev.artistName}</strong></td>
+            <td>${ev.city}</td>
+            <td><span class="badge ${st.badge}">${st.label}</span></td>
+            <td>€${ev.totalRaised}/€${ev.cachet} <span class="text-muted">(${pct}%)</span></td>
+            <td>${ev.participants}</td>
+            <td><button class="btn btn-ghost btn-sm" onclick="openEventDetail('${ev.id}')">Dettagli</button></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderAdminArtists() {
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `
+    <div class="page-header">
+      <div><h1 class="page-title">Artisti</h1><p class="page-sub">${DB.artists.length} artisti registrati.</p></div>
+      <button class="btn btn-primary" onclick="openModal('modal-add-artist')">+ Aggiungi artista</button>
+    </div>
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>Nome</th><th>Genere</th><th>Città</th><th>Cachet min.</th><th>Stato</th></tr></thead>
+        <tbody>${DB.artists.map(a => `<tr>
+          <td><strong>${a.name}</strong></td>
+          <td>${a.genre}</td>
+          <td>${a.city}</td>
+          <td class="text-gold">€${a.cachet}</td>
+          <td><span class="badge ${a.confirmed ? 'badge-confirmed' : 'badge-pending'}">${a.confirmed ? 'Verificato' : 'In attesa'}</span></td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderAdminVenues() {
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `
+    <div class="page-header">
+      <div><h1 class="page-title">Location</h1><p class="page-sub">${DB.venues.length} location registrate.</p></div>
+      <button class="btn btn-primary" onclick="openModal('modal-add-venue')">+ Aggiungi location</button>
+    </div>
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>Nome</th><th>Tipo</th><th>Città</th><th>Capienza</th><th>Stato</th></tr></thead>
+        <tbody>${DB.venues.map(v => `<tr>
+          <td><strong>${v.name}</strong></td>
+          <td>${v.venueType}</td>
+          <td>${v.city}</td>
+          <td>${v.capacity}</td>
+          <td><span class="badge ${v.confirmed ? 'badge-confirmed' : 'badge-pending'}">${v.confirmed ? 'Verificata' : 'In attesa'}</span></td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderAdminUsers() {
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `
+    <div class="page-header">
+      <div><h1 class="page-title">Utenti</h1><p class="page-sub">${DB.users.length} utenti registrati.</p></div>
+    </div>
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th>Nome</th><th>Email</th><th>Ruolo</th><th>Città</th></tr></thead>
+        <tbody>${DB.users.map(u => `<tr>
+          <td><strong>${u.name}</strong></td>
+          <td class="text-muted">${u.email}</td>
+          <td><span class="badge badge-${u.role === 'admin' ? 'pending' : u.role}">${u.role}</span></td>
+          <td>${u.city || '—'}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+// =============================================
+// EXPLORE (public)
+// =============================================
+function renderExplore() {
+  const grid = document.getElementById('explore-grid');
+  if (grid) grid.innerHTML = DB.events.map(renderEventCard).join('');
+}
+
+// =============================================
+// EVENTS — CREATE
+// =============================================
+function openCreateEvent() {
+  const sel = document.getElementById('ev-artist');
+  sel.innerHTML = DB.artists.filter(a => a.confirmed).map(a =>
+    `<option value="${a.id}" data-cachet="${a.cachet}">${a.name} (€${a.cachet} cachet)</option>`
+  ).join('');
+  updatePriceSuggestion();
+  sel.addEventListener('change', updatePriceSuggestion);
+  openModal('modal-create-event');
+}
+
+function updatePriceSuggestion() {
+  const sel = document.getElementById('ev-artist');
+  const opt = sel.options[sel.selectedIndex];
+  if (!opt) return;
+  const cachet = parseInt(opt.dataset.cachet) || 500;
+  const suggested = Math.ceil(cachet / 50);
+  document.getElementById('ev-price-suggestion').textContent =
+    `💡 Prezzo suggerito: €${suggested} (per ~50 partecipanti). Puoi modificarlo.`;
+}
+
+function submitNewEvent() {
+  const artistId = document.getElementById('ev-artist').value;
+  const city = document.getElementById('ev-city').value.trim();
+  const price = parseInt(document.getElementById('ev-price').value);
+  const date = document.getElementById('ev-date').value;
+  const desc = document.getElementById('ev-desc').value.trim();
+
+  if (!artistId || !city || !price) { showToast('Compila tutti i campi obbligatori', 'error'); return; }
+
+  const artist = DB.artists.find(a => a.id === artistId);
+  const ev = {
+    id: 'e' + Date.now(),
+    artistId,
+    artistName: artist.name,
+    city,
+    ticketPrice: price,
+    cachet: artist.cachet,
+    totalRaised: price,
+    participants: 1,
+    date: date || '—',
+    status: 'funding',
+    creatorId: currentUser.id,
+    creatorName: currentUser.name,
+    desc,
+    venueId: null,
+    artistConfirmed: null,
+  };
+  DB.events.push(ev);
+  if (currentUser.eventsCreated !== undefined) currentUser.eventsCreated++;
+
+  closeModal('modal-create-event');
+  showToast('Evento proposto con successo! 🎉', 'success');
+  navigateTo('my-events');
+}
+
+// =============================================
+// EVENT DETAIL
+// =============================================
+function openEventDetail(id) {
+  const ev = DB.events.find(e => e.id === id);
+  if (!ev) return;
+  const pct = Math.min(100, Math.round((ev.totalRaised / ev.cachet) * 100));
+  const st = STATUS_LABELS[ev.status] || { label: ev.status, badge: '' };
+  const artist = DB.artists.find(a => a.id === ev.artistId) || {};
+
+  let actions = '';
+  if (currentUser && currentUser.role === 'fan' && ev.status === 'funding') {
+    actions = `<button class="btn btn-primary btn-full mt-16" onclick="joinEvent('${ev.id}')">🎟️ Partecipa (€${ev.ticketPrice})</button>`;
+  }
+  if (currentUser && currentUser.role === 'artist' && ev.status === 'artist_pending') {
+    actions = `<div class="flex gap-8 mt-16">
+      <button class="btn btn-primary btn-full" onclick="artistConfirm('${ev.id}', true)">✓ Accetto</button>
+      <button class="btn btn-danger btn-full" onclick="artistConfirm('${ev.id}', false)">✗ Declino</button>
+    </div>`;
+  }
+  if (currentUser && currentUser.role === 'venue' && ev.status === 'venue_pending') {
+    actions = `<button class="btn btn-primary btn-full mt-16" onclick="venueApply('${ev.id}')">🏛️ Offro la mia location</button>`;
+  }
+
+  document.getElementById('event-detail-content').innerHTML = `
+    <div class="flex justify-between items-center" style="margin-bottom:20px">
+      <h3 class="modal-title" style="margin:0">${ev.artistName}</h3>
+      <span class="badge ${st.badge}">${st.label}</span>
+    </div>
+    <div class="text-muted text-sm" style="margin-bottom:16px">📍 ${ev.city} · 📅 ${ev.date}</div>
+    ${ev.desc ? `<p style="font-size:14px;color:var(--grey-text);margin-bottom:20px">"${ev.desc}"</p>` : ''}
+    <div class="card" style="margin-bottom:16px">
+      <div class="funding-label" style="margin-bottom:8px">
+        <span style="font-size:14px">Raccolta fondi</span>
+        <span class="funding-amount">€${ev.totalRaised} / €${ev.cachet}</span>
+      </div>
+      <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+      <div class="flex justify-between mt-8 text-xs text-muted">
+        <span>${ev.participants} partecipanti</span>
+        <span>${pct}% completato</span>
+      </div>
+    </div>
+    <div class="flex gap-16 text-sm" style="margin-bottom:16px">
+      <div><div class="stat-label">Biglietto</div><div class="font-bold">€${ev.ticketPrice}</div></div>
+      <div><div class="stat-label">Cachet artista</div><div class="font-bold">€${ev.cachet}</div></div>
+      <div><div class="stat-label">Genere</div><div class="font-bold">${artist.genre || '—'}</div></div>
+    </div>
+    ${actions}
+    <button class="btn btn-ghost btn-full mt-16" onclick="closeModal('modal-event-detail')">Chiudi</button>
+  `;
+  openModal('modal-event-detail');
+}
+
+function joinEvent(id) {
+  const ev = DB.events.find(e => e.id === id);
+  if (!ev) return;
+  ev.participants++;
+  ev.totalRaised += ev.ticketPrice;
+  if (ev.totalRaised >= ev.cachet && ev.status === 'funding') {
+    ev.status = 'artist_pending';
+    showToast('Cachet raggiunto! L\'artista riceverà la notifica 🎉', 'success');
+  } else {
+    showToast('Partecipi all\'evento!', 'success');
+  }
+  closeModal('modal-event-detail');
+  navigateTo(currentPage);
+}
+
+function artistConfirm(id, accepted) {
+  const ev = DB.events.find(e => e.id === id);
+  if (!ev) return;
+  if (accepted) {
+    ev.status = 'venue_pending';
+    ev.artistConfirmed = true;
+    showToast('Hai confermato! Le location della città verranno notificate.', 'success');
+  } else {
+    ev.status = 'cancelled';
+    showToast('Hai declinato la richiesta.', 'error');
+  }
+  closeModal('modal-event-detail');
+  navigateTo(currentPage);
+}
+
+// =============================================
+// ADMIN ACTIONS
+// =============================================
+function adminAddArtist() {
+  const name = document.getElementById('adm-artist-name').value.trim();
+  const genre = document.getElementById('adm-artist-genre').value;
+  const city = document.getElementById('adm-artist-city').value.trim();
+  const cachet = parseInt(document.getElementById('adm-artist-cachet').value) || 500;
+  if (!name || !city) { showToast('Compila tutti i campi', 'error'); return; }
+  DB.artists.push({ id: 'a' + Date.now(), name, genre, city, cachet, confirmed: true });
+  closeModal('modal-add-artist');
+  showToast('Artista aggiunto!', 'success');
+  renderAdminArtists();
+}
+
+function adminAddVenue() {
+  const name = document.getElementById('adm-venue-name').value.trim();
+  const venueType = document.getElementById('adm-venue-type').value;
+  const city = document.getElementById('adm-venue-city').value.trim();
+  const capacity = parseInt(document.getElementById('adm-venue-capacity').value) || 100;
+  if (!name || !city) { showToast('Compila tutti i campi', 'error'); return; }
+  DB.venues.push({ id: 'v' + Date.now(), name, venueType, city, capacity, confirmed: true });
+  closeModal('modal-add-venue');
+  showToast('Location aggiunta!', 'success');
+  renderAdminVenues();
+}
+
+// =============================================
+// MODAL & TOAST
+// =============================================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `toast ${type} show`;
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// =============================================
+// INIT
+// =============================================
+selectRole('fan');
+</script>
+</body>
+</html>
